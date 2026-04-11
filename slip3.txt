@@ -1,0 +1,197 @@
+Q.1 Write a C program to simulate Banker’s algorithm for the purpose of deadlock
+avoidance. Consider the following snapshot of system, A, B, C and D is the
+resource type.
+Process Allocation Max Available
+A B C D A B C D A B C D
+P0 0 0 1 2 0 0 1 2 1 5 2 0
+P1 1 0 0 0 1 7 5 0
+P2 1 3 5 4 2 3 5 6
+P3 0 6 3 2 0 6 5 2
+P4 0 0 1 4 0 6 5 6
+a)Calculate and display the content of need matrix?
+b)Is the system in safe state? If display the safe sequence.
+
+
+
+#include <stdio.h>
+
+int main()
+{
+    int i, j, k;
+    int n = 5, m = 4;
+
+    int allocation[5][4] = {
+        {0, 0, 1, 2},
+        {1, 0, 0, 0},
+        {1, 3, 5, 4},
+        {0, 6, 3, 2},
+        {0, 0, 1, 4}
+    };
+
+    int max[5][4] = {
+        {0, 0, 1, 2},
+        {1, 7, 5, 0},
+        {2, 3, 5, 6},
+        {0, 6, 5, 2},
+        {0, 6, 5, 6}
+    };
+
+    int available[4] = {1, 5, 2, 0};
+
+    int need[5][4], finish[5] = {0}, safeSeq[5];
+    int count = 0;
+
+    // Calculate Need matrix
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j < m; j++)
+        {
+            need[i][j] = max[i][j] - allocation[i][j];
+        }
+    }
+
+    // Display Need Matrix
+    printf("\nNeed Matrix:\n");
+    printf("Process\tA\tB\tC\tD\n");
+    for(i = 0; i < n; i++)
+    {
+        printf("P%d\t", i);
+        for(j = 0; j < m; j++)
+        {
+            printf("%d\t", need[i][j]);
+        }
+        printf("\n");
+    }
+
+    // Banker's Algorithm
+    while(count < n)
+    {
+        int found = 0;
+        for(i = 0; i < n; i++)
+        {
+            if(finish[i] == 0)
+            {
+                for(j = 0; j < m; j++)
+                {
+                    if(need[i][j] > available[j])
+                        break;
+                }
+
+                if(j == m)
+                {
+                    for(k = 0; k < m; k++)
+                    {
+                        available[k] += allocation[i][k];
+                    }
+
+                    safeSeq[count++] = i;
+                    finish[i] = 1;
+                    found = 1;
+                }
+            }
+        }
+
+        if(found == 0)
+        {
+            printf("\nSystem is NOT in safe state.\n");
+            return 0;
+        }
+    }
+
+    printf("\nSystem is in SAFE state.\n");
+    printf("Safe Sequence: ");
+    for(i = 0; i < n; i++)
+    {
+        printf("P%d", safeSeq[i]);
+        if(i != n - 1)
+            printf(" -> ");
+    }
+    printf("\n");
+
+    return 0;
+}
+
+
+
+output:- 
+
+Need Matrix:
+Process A       B       C       D
+P0      0       0       0       0
+P1      0       7       5       0
+P2      1       0       0       2
+P3      0       0       2       0
+P4      0       6       4       2
+
+System is in SAFE state.
+
+
+
+Q.2 Write an MPI program to calculate sum and average of randomly generated 1000
+numbers (stored in array) on a cluster
+
+
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 1000
+
+int main(int argc, char *argv[])
+{
+    int rank, nprocs, i;
+    int data[SIZE];
+    int local_n, local_sum = 0, total_sum = 0;
+    double average;
+    int *sub_data;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+    if (SIZE % nprocs != 0)
+    {
+        if (rank == 0)
+            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
+        MPI_Finalize();
+        return 0;
+    }
+
+    local_n = SIZE / nprocs;
+    sub_data = (int *)malloc(local_n * sizeof(int));
+
+    if (rank == 0)
+    {
+        srand(time(NULL));
+        for (i = 0; i < SIZE; i++)
+            data[i] = rand() % 100;
+
+        printf("Generated 1000 random numbers\n");
+    }
+
+    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
+
+    for (i = 0; i < local_n; i++)
+        local_sum += sub_data[i];
+
+    printf("Process %d local sum = %d\n", rank, local_sum);
+
+    MPI_Reduce(&local_sum, &total_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if (rank == 0)
+    {
+        average = (double)total_sum / SIZE;
+        printf("Total sum = %d\n", total_sum);
+        printf("Average = %.2lf\n", average);
+    }
+
+    free(sub_data);
+    MPI_Finalize();
+    return 0;
+}
+
+
+mpicc program.c
+mpirun -np 4 ./a.out
+Safe Sequence: P0 -> P2 -> P3 -> P4 -> P1

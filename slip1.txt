@@ -1,0 +1,226 @@
+Q1) C Menu Driven Program
+
+Functions:
+
+Accept Available
+Display Allocation, Max
+Display Need Matrix
+Display Available
+
+
+
+#include <stdio.h>
+
+#define P 5
+#define R 3
+
+int allocation[P][R] = {
+    {2, 3, 2},
+    {4, 0, 0},
+    {5, 0, 4},
+    {4, 3, 3},
+    {2, 2, 4}
+};
+
+int max[P][R] = {
+    {9, 7, 5},
+    {5, 2, 2},
+    {1, 0, 4},
+    {4, 4, 4},
+    {6, 5, 5}
+};
+
+int need[P][R];
+int available[R];
+
+void acceptAvailable() {
+    int i;
+    printf("Enter Available Resources (A B C): ");
+    for(i = 0; i < R; i++) {
+        scanf("%d", &available[i]);
+    }
+}
+
+void calculateNeed() {
+    int i, j;
+    for(i = 0; i < P; i++) {
+        for(j = 0; j < R; j++) {
+            need[i][j] = max[i][j] - allocation[i][j];
+        }
+    }
+}
+
+void displayAllocationMax() {
+    int i, j;
+    printf("\nProcess\tAllocation\tMax\n");
+    printf("\tA B C\t\tA B C\n");
+    for(i = 0; i < P; i++) {
+        printf("P%d\t", i);
+        for(j = 0; j < R; j++) {
+            printf("%d ", allocation[i][j]);
+        }
+        printf("\t\t");
+        for(j = 0; j < R; j++) {
+            printf("%d ", max[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void displayNeed() {
+    int i, j;
+    calculateNeed();
+    printf("\nNeed Matrix:\n");
+    printf("Process\tA B C\n");
+    for(i = 0; i < P; i++) {
+        printf("P%d\t", i);
+        for(j = 0; j < R; j++) {
+            printf("%d ", need[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void displayAvailable() {
+    printf("\nAvailable Resources:\n");
+    printf("A = %d\tB = %d\tC = %d\n", available[0], available[1], available[2]);
+}
+
+int main() {
+    int choice;
+
+    do {
+        printf("\n----- MENU -----\n");
+        printf("1. Accept Available\n");
+        printf("2. Display Allocation and Max\n");
+        printf("3. Display Need Matrix\n");
+        printf("4. Display Available\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                acceptAvailable();
+                break;
+            case 2:
+                displayAllocationMax();
+                break;
+            case 3:
+                displayNeed();
+                break;
+            case 4:
+                displayAvailable();
+                break;
+            case 5:
+                printf("Exiting program...\n");
+                break;
+            default:
+                printf("Invalid choice!\n");
+        }
+    } while(choice != 5);
+
+    return 0;
+}
+
+output :-
+
+----- MENU -----
+1. Accept Available
+2. Display Allocation and Max
+3. Display Need Matrix
+4. Display Available
+5. Exit
+Enter your choice: 1
+Enter Available Resources (A B C): 3 3 2
+
+----- MENU -----
+1. Accept Available
+2. Display Allocation and Max
+3. Display Need Matrix
+4. Display Available
+5. Exit
+Enter your choice: 2
+
+Process Allocation      Max
+        A B C           A B C
+P0      2 3 2           9 7 5
+P1      4 0 0           5 2 2
+P2      5 0 4           1 0 4
+P3      4 3 3           4 4 4
+P4      2 2 4           6 5 5
+
+Enter your choice: 3
+
+Need Matrix:
+Process A B C
+P0      7 4 3
+P1      1 2 2
+P2      -4 0 0
+P3      0 1 1
+P4      4 3 1
+
+Enter your choice: 4
+
+Available Resources:
+A = 3   B = 3   C = 2
+
+
+
+
+Q.2 Write a simulation program for disk scheduling using FCFS algorithm. Accept
+total number of disk blocks, disk request string, and current head position from the
+user. Display the list of request in the order in which it is served. Also display the
+total number of head moments.
+ 55, 58, 39, 18, 90, 160, 150, 38, 184
+ Start Head Position: 50
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, i, head, total = 0;
+
+    printf("Enter total number of disk requests: ");
+    scanf("%d", &n);
+
+    int req[n];
+
+    printf("Enter disk request sequence:\n");
+    for(i = 0; i < n; i++) {
+        scanf("%d", &req[i]);
+    }
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("\nOrder of service using FCFS:\n");
+    printf("%d ", head);
+
+    for(i = 0; i < n; i++) {
+        total += abs(req[i] - head);
+        head = req[i];
+        printf("-> %d ", head);
+    }
+
+    printf("\n\nTotal number of head movements = %d\n", total);
+
+    return 0;
+}
+
+
+
+output:-
+
+Enter total number of disk requests: 9
+Enter disk request sequence:
+55 58 39 18 90 160 150 38 184
+Enter initial head position: 50
+
+Order of service using FCFS:
+50 -> 55 -> 58 -> 39 -> 18 -> 90 -> 160 -> 150 -> 38 -> 184 
+
+Total number of head movements = 458
+

@@ -1,0 +1,156 @@
+Q1) LOOK Disk Scheduling
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void sort(int arr[], int n)
+{
+    int i, j, temp;
+    for(i = 0; i < n - 1; i++)
+    {
+        for(j = 0; j < n - i - 1; j++)
+        {
+            if(arr[j] > arr[j + 1])
+            {
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main()
+{
+    int req[100], left[100], right[100];
+    int n, head, i;
+    int lcount = 0, rcount = 0, total = 0;
+
+    printf("Enter total number of requests: ");
+    scanf("%d", &n);
+
+    printf("Enter request sequence:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    for(i = 0; i < n; i++)
+    {
+        if(req[i] < head)
+            left[lcount++] = req[i];
+        else
+            right[rcount++] = req[i];
+    }
+
+    sort(left, lcount);
+    sort(right, rcount);
+
+    printf("\nOrder of service using LOOK:\n");
+    printf("%d ", head);
+
+    for(i = 0; i < rcount; i++)
+    {
+        total += abs(head - right[i]);
+        head = right[i];
+        printf("-> %d ", head);
+    }
+
+    for(i = lcount - 1; i >= 0; i--)
+    {
+        total += abs(head - left[i]);
+        head = left[i];
+        printf("-> %d ", head);
+    }
+
+    printf("\n\nTotal head movements = %d\n", total);
+
+    return 0;
+}
+
+
+
+
+Enter total number of requests: 8
+Enter request sequence:
+176 79 34 60 92 11 41 114
+Enter initial head position: 65
+Order of service using LOOK:
+65 -> 79 -> 92 -> 114 -> 176 -> 60 -> 41 -> 34 -> 11
+
+Total head movements = 276
+
+
+
+
+
+
+
+Q2) MPI Program to find minimum number from 1000 random numbers
+
+
+
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 1000
+
+int main(int argc, char *argv[])
+{
+    int rank, nprocs, i;
+    int data[SIZE];
+    int local_n;
+    int local_min, global_min;
+    int *sub_data;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+    if (SIZE % nprocs != 0)
+    {
+        if (rank == 0)
+            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
+        MPI_Finalize();
+        return 0;
+    }
+
+    local_n = SIZE / nprocs;
+    sub_data = (int *)malloc(local_n * sizeof(int));
+
+    if (rank == 0)
+    {
+        srand(time(NULL));
+        for (i = 0; i < SIZE; i++)
+            data[i] = rand() % 1000;
+
+        printf("Generated 1000 random numbers\n");
+    }
+
+    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
+
+    local_min = sub_data[0];
+    for (i = 1; i < local_n; i++)
+    {
+        if (sub_data[i] < local_min)
+            local_min = sub_data[i];
+    }
+
+    printf("Process %d local min = %d\n", rank, local_min);
+
+    MPI_Reduce(&local_min, &global_min, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
+
+    if (rank == 0)
+    {
+        printf("Minimum number = %d\n", global_min);
+    }
+
+    free(sub_data);
+    MPI_Finalize();
+    return 0;
+}

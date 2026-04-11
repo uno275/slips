@@ -1,0 +1,122 @@
+Q.1 Write a simulation program for disk scheduling using FCFS algorithm. Accept total
+number of disk blocks, disk request string, and current head position from the user.
+Display the list of request in the order in which it is served. Also display the total number
+of head moments.
+ 55, 58, 39, 18, 90, 160, 150, 38, 184
+ Start Head Position:50
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int n, i, head, total = 0;
+
+    printf("Enter total number of requests: ");
+    scanf("%d", &n);
+
+    int req[n];
+
+    printf("Enter request sequence:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &req[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("\nOrder of service using FCFS:\n");
+    printf("%d ", head);
+
+    for(i = 0; i < n; i++)
+    {
+        total += abs(req[i] - head);
+        head = req[i];
+        printf("-> %d ", head);
+    }
+
+    printf("\n\nTotal head movements = %d\n", total);
+
+    return 0;
+}
+
+
+
+
+Enter total number of requests: 9
+Enter request sequence:
+55 58 39 18 90 160 150 38 184
+Enter initial head position: 50
+
+Order of service using FCFS:
+50 -> 55 -> 58 -> 39 -> 18 -> 90 -> 160 -> 150 -> 38 -> 184
+
+Total head movements = 458
+
+
+
+
+
+Q.2 Write an MPI program to calculate sum of all even randomly generated 1000
+numbers (stored in array) on a cluster
+
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 1000
+
+int main(int argc, char *argv[])
+{
+    int rank, nprocs, i;
+    int data[SIZE];
+    int local_n, local_even_sum = 0, total_even_sum = 0;
+    int *sub_data;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+    if (SIZE % nprocs != 0)
+    {
+        if (rank == 0)
+            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
+        MPI_Finalize();
+        return 0;
+    }
+
+    local_n = SIZE / nprocs;
+    sub_data = (int *)malloc(local_n * sizeof(int));
+
+    if (rank == 0)
+    {
+        srand(time(NULL));
+        for (i = 0; i < SIZE; i++)
+            data[i] = rand() % 1000;
+
+        printf("Generated 1000 random numbers\n");
+    }
+
+    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
+
+    for (i = 0; i < local_n; i++)
+    {
+        if (sub_data[i] % 2 == 0)
+            local_even_sum += sub_data[i];
+    }
+
+    printf("Process %d local even sum = %d\n", rank, local_even_sum);
+
+    MPI_Reduce(&local_even_sum, &total_even_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+    if (rank == 0)
+    {
+        printf("Total sum of even numbers = %d\n", total_even_sum);
+    }
+
+    free(sub_data);
+    MPI_Finalize();
+    return 0;
+}
