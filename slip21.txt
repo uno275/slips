@@ -1,122 +1,169 @@
-Q.1 Write a simulation program for disk scheduling using FCFS algorithm. Accept total
-number of disk blocks, disk request string, and current head position from the user.
-Display the list of request in the order in which it is served. Also display the total number
-of head moments.
- 55, 58, 39, 18, 90, 160, 150, 38, 184
- Start Head Position:50
+Write a java program to accept ‘N’ Subject Names from a user store them into
+LinkedList Collection and Display them by using Iterator interface. 
 
+Save as SubjectList.java
 
+import java.util.*;
 
-#include <stdio.h>
-#include <stdlib.h>
+public class SubjectList {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        LinkedList<String> subjects = new LinkedList<String>();
 
-int main()
-{
-    int n, i, head, total = 0;
+        System.out.print("Enter number of subjects: ");
+        int n = sc.nextInt();
+        sc.nextLine();
 
-    printf("Enter total number of requests: ");
-    scanf("%d", &n);
+        System.out.println("Enter subject names:");
+        for (int i = 0; i < n; i++) {
+            String sub = sc.nextLine();
+            subjects.add(sub);
+        }
 
-    int req[n];
+        System.out.println("Subject names are:");
+        Iterator<String> it = subjects.iterator();
 
-    printf("Enter request sequence:\n");
-    for(i = 0; i < n; i++)
-        scanf("%d", &req[i]);
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
 
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
-
-    printf("\nOrder of service using FCFS:\n");
-    printf("%d ", head);
-
-    for(i = 0; i < n; i++)
-    {
-        total += abs(req[i] - head);
-        head = req[i];
-        printf("-> %d ", head);
+        sc.close();
     }
-
-    printf("\n\nTotal head movements = %d\n", total);
-
-    return 0;
 }
 
 
 
+Compile:
 
-Enter total number of requests: 9
-Enter request sequence:
-55 58 39 18 90 160 150 38 184
-Enter initial head position: 50
+javac SubjectList.java
 
-Order of service using FCFS:
-50 -> 55 -> 58 -> 39 -> 18 -> 90 -> 160 -> 150 -> 38 -> 184
+Run:
+java SubjectList
 
-Total head movements = 458
+Example input
+Enter number of subjects: 4
+
+Enter subject names:
+Java
+Python
+DBMS
+OS
+
+Output
+
+Subject names are:
+Java
+Python
+DBMS
+OS
 
 
 
 
 
-Q.2 Write an MPI program to calculate sum of all even randomly generated 1000
-numbers (stored in array) on a cluster
 
-#include <mpi.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+2. Write a java program to solve producer consumer problem in which a producer
+produces a value and consumer consume the value before producer generate the next
+value. (Hint: use thread synchronization) 
 
-#define SIZE 1000
 
-int main(int argc, char *argv[])
-{
-    int rank, nprocs, i;
-    int data[SIZE];
-    int local_n, local_even_sum = 0, total_even_sum = 0;
-    int *sub_data;
+Save as ProducerConsumerDemo.java
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
-    if (SIZE % nprocs != 0)
-    {
-        if (rank == 0)
-            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
-        MPI_Finalize();
-        return 0;
+
+class Q {
+    int n;
+    boolean valueSet = false;
+
+    synchronized void put(int n) {
+        try {
+            while (valueSet)
+                wait();
+
+            this.n = n;
+            System.out.println("Produced: " + n);
+            valueSet = true;
+            notify();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
-    local_n = SIZE / nprocs;
-    sub_data = (int *)malloc(local_n * sizeof(int));
+    synchronized void get() {
+        try {
+            while (!valueSet)
+                wait();
 
-    if (rank == 0)
-    {
-        srand(time(NULL));
-        for (i = 0; i < SIZE; i++)
-            data[i] = rand() % 1000;
-
-        printf("Generated 1000 random numbers\n");
+            System.out.println("Consumed: " + n);
+            valueSet = false;
+            notify();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
-
-    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-
-    for (i = 0; i < local_n; i++)
-    {
-        if (sub_data[i] % 2 == 0)
-            local_even_sum += sub_data[i];
-    }
-
-    printf("Process %d local even sum = %d\n", rank, local_even_sum);
-
-    MPI_Reduce(&local_even_sum, &total_even_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    if (rank == 0)
-    {
-        printf("Total sum of even numbers = %d\n", total_even_sum);
-    }
-
-    free(sub_data);
-    MPI_Finalize();
-    return 0;
 }
+
+class Producer extends Thread {
+    Q q;
+
+    Producer(Q q) {
+        this.q = q;
+    }
+
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            q.put(i);
+        }
+    }
+}
+
+class Consumer extends Thread {
+    Q q;
+
+    Consumer(Q q) {
+        this.q = q;
+    }
+
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            q.get();
+        }
+    }
+}
+
+public class ProducerConsumerDemo {
+    public static void main(String[] args) {
+        Q q = new Q();
+
+        Producer p = new Producer(q);
+        Consumer c = new Consumer(q);
+
+        p.start();
+        c.start();
+    }
+}
+
+
+Compile:
+javac ProducerConsumerDemo.java
+
+Run:
+java ProducerConsumerDemo
+
+Example output
+Produced: 1
+Consumed: 1
+Produced: 2
+Consumed: 2
+Produced: 3
+Consumed: 3
+Produced: 4
+Consumed: 4
+Produced: 5
+Consumed: 5
+
+
+
+
+
+

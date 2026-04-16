@@ -1,153 +1,129 @@
-Q1) MPI Program to calculate sum of all even randomly generated 1000 numbers
-
-
-#include <mpi.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#define SIZE 1000
-
-int main(int argc, char *argv[])
-{
-    int rank, nprocs, i;
-    int data[SIZE];
-    int local_n, local_even_sum = 0, total_even_sum = 0;
-    int *sub_data;
-
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
-
-    if (SIZE % nprocs != 0)
-    {
-        if (rank == 0)
-            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
-        MPI_Finalize();
-        return 0;
-    }
-
-    local_n = SIZE / nprocs;
-    sub_data = (int *)malloc(local_n * sizeof(int));
-
-    if (rank == 0)
-    {
-        srand(time(NULL));
-        for (i = 0; i < SIZE; i++)
-            data[i] = rand() % 1000;
-
-        printf("Generated 1000 random numbers\n");
-    }
-
-    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-
-    for (i = 0; i < local_n; i++)
-    {
-        if (sub_data[i] % 2 == 0)
-            local_even_sum += sub_data[i];
-    }
-
-    printf("Process %d local even sum = %d\n", rank, local_even_sum);
-
-    MPI_Reduce(&local_even_sum, &total_even_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    if (rank == 0)
-    {
-        printf("Total sum of even numbers = %d\n", total_even_sum);
-    }
-
-    free(sub_data);
-    MPI_Finalize();
-    return 0;
-}
+1. Write a Java program to display information about all columns in the DONAR table
+using ResultSetMetaData. 
 
 
 
+CREATE TABLE donar(dno INT,dname VARCHAR(50),city VARCHAR(30),amount INT);
 
 
-Q2) C-LOOK Disk Scheduling
+INSERT INTO donar VALUES(1,'Amit','Pune',5000);
 
 
+Save as DonarMetaData.java
 
 
-#include <stdio.h>
-#include <stdlib.h>
+import java.sql.*;
 
-void sort(int arr[], int n)
-{
-    int i, j, temp;
-    for(i = 0; i < n - 1; i++)
-    {
-        for(j = 0; j < n - i - 1; j++)
-        {
-            if(arr[j] > arr[j + 1])
-            {
-                temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+public class DonarMetaData {
+    public static void main(String[] args) {
+        try {
+            Class.forName("org.postgresql.Driver");
+
+            Connection con = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost:5432/testdb",
+                    "postgres",
+                    "password"
+            );
+
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM donar");
+
+            ResultSetMetaData rsmd = rs.getMetaData();
+
+            int count = rsmd.getColumnCount();
+
+            System.out.println("Number of Columns: " + count);
+            System.out.println("----------------------------------");
+
+            for (int i = 1; i <= count; i++) {
+                System.out.println("Column Name: " + rsmd.getColumnName(i));
+                System.out.println("Column Type: " + rsmd.getColumnTypeName(i));
+                System.out.println("Column Size: " + rsmd.getColumnDisplaySize(i));
+                System.out.println("----------------------------------");
             }
+
+            con.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 }
 
-int main()
-{
-    int req[100], left[100], right[100];
-    int n, head, i;
-    int lcount = 0, rcount = 0, total = 0;
 
-    printf("Enter total number of requests: ");
-    scanf("%d", &n);
 
-    printf("Enter request sequence:\n");
-    for(i = 0; i < n; i++)
-        scanf("%d", &req[i]);
+javac -cp ".:postgresql-42.7.3.jar" DonarMetaData.java
+java -cp ".:postgresql-42.7.3.jar" DonarMetaData
 
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
 
-    for(i = 0; i < n; i++)
-    {
-        if(req[i] < head)
-            left[lcount++] = req[i];
-        else
-            right[rcount++] = req[i];
+Number of Columns: 4
+----------------------------------
+Column Name: dno
+Column Type: int4
+Column Size: 11
+----------------------------------
+Column Name: dname
+Column Type: varchar
+Column Size: 50
+----------------------------------
+Column Name: city
+Column Type: varchar
+Column Size: 30
+----------------------------------
+Column Name: amount
+Column Type: int4
+Column Size: 11
+----------------------------------
+
+
+
+
+
+
+2. Write a Java program to create LinkedList of integer objects and perform the following:
+i. Add element at first position
+ii. Delete last element
+iii. Display the size of link list 
+
+
+
+Save as LinkedListDemo.java
+
+
+
+
+import java.util.*;
+
+public class LinkedListDemo {
+    public static void main(String[] args) {
+        LinkedList<Integer> list = new LinkedList<Integer>();
+
+        list.add(10);
+        list.add(20);
+        list.add(30);
+        list.add(40);
+
+        System.out.println("Original LinkedList: " + list);
+
+        list.addFirst(5);
+        System.out.println("After adding at first position: " + list);
+
+        list.removeLast();
+        System.out.println("After deleting last element: " + list);
+
+        System.out.println("Size of LinkedList: " + list.size());
     }
-
-    sort(left, lcount);
-    sort(right, rcount);
-
-    printf("\nOrder of service using C-LOOK:\n");
-    printf("%d ", head);
-
-    for(i = 0; i < rcount; i++)
-    {
-        total += abs(head - right[i]);
-        head = right[i];
-        printf("-> %d ", head);
-    }
-
-    for(i = 0; i < lcount; i++)
-    {
-        total += abs(head - left[i]);
-        head = left[i];
-        printf("-> %d ", head);
-    }
-
-    printf("\n\nTotal head movements = %d\n", total);
-
-    return 0;
 }
 
 
 
+Compile
+javac LinkedListDemo.java
+Run
+java LinkedListDemo
 
-Enter total number of requests: 7
-Enter request sequence:
-80 150 60 135 40 35 170
-Enter initial head position: 70
-Order of service using C-LOOK:
-70 -> 80 -> 135 -> 150 -> 170 -> 35 -> 40 -> 60
 
-Total head movements = 260
-
+Example output
+Original LinkedList: [10, 20, 30, 40]
+After adding at first position: [5, 10, 20, 30, 40]
+After deleting last element: [5, 10, 20, 30]
+Size of LinkedList: 4

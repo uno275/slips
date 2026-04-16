@@ -1,163 +1,138 @@
-Q1) MPI Program to Calculate Sum and Average of 1000 Numbers
+Write a JSP program to check whether given number is Perfect or not. (Use Include
+directive).
+
+
+apache-tomcat
+ └── webapps
+      └── perfect
+           ├── index.jsp
+           ├── check.jsp
+           └── logic.jsp
 
 
 
-#include <mpi.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+index.jsp
+<html>
+<body>
+<h2>Perfect Number Check</h2>
+<form action="check.jsp">
+Enter Number:
+<input type="text" name="num">
+<br><br>
+<input type="submit" value="Check">
+</form>
+</body>
+</html>
 
-#define SIZE 1000
+--------------------
+check.jsp
 
-int main(int argc, char *argv[])
+<%@ include file="logic.jsp" %>
+<html>
+<body>
+<%
+int num = Integer.parseInt(request.getParameter("num"));
+boolean result = isPerfect(num);
+if(result)
 {
-    int rank, nprocs, i;
-    int data[SIZE];
-    int local_n, local_sum = 0, total_sum = 0;
-    double average;
-    int *sub_data;
+out.println(num + " is a Perfect Number");
+}
+else
+{
+out.println(num + " is NOT a Perfect Number");
+}
+%>
+</body>
+</html>
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
-    if (SIZE % nprocs != 0)
-    {
-        if (rank == 0)
-            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
-        MPI_Finalize();
-        return 0;
-    }
+-------------
 
-    local_n = SIZE / nprocs;
-    sub_data = (int *)malloc(local_n * sizeof(int));
+logic.jsp
 
-    if (rank == 0)
-    {
-        srand(time(NULL));
-        for (i = 0; i < SIZE; i++)
-            data[i] = rand() % 100;
+<%!
+boolean isPerfect(int n)
+{
+int sum = 0;
+for(int i=1;i<n;i++)
+{
+if(n % i == 0)
+{
+sum = sum + i;
+}
+}
+if(sum == n)
+return true;
+else
+return false;
+}
+%>
 
-        printf("Generated 1000 random numbers\n");
-    }
 
-    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
 
-    for (i = 0; i < local_n; i++)
-        local_sum += sub_data[i];
 
-    printf("Process %d local sum = %d\n", rank, local_sum);
 
-    MPI_Reduce(&local_sum, &total_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    if (rank == 0)
-    {
-        average = (double)total_sum / SIZE;
-        printf("Total Sum = %d\n", total_sum);
-        printf("Average = %.2f\n", average);
-    }
 
-    free(sub_data);
-    MPI_Finalize();
-    return 0;
+
+Write a Java Program to create a PROJECT table with field’s project_id, Project_name,
+Project_description, Project_Status. Insert values in the table. Display all the details of
+the PROJECT table in a tabular format on the screen.(using swing).
+
+
+first create table:-
+
+CREATE TABLE project(project_id INT,project_name VARCHAR(50),project_description VARCHAR(100),project_status VARCHAR(20));
+
+
+INSERT INTO project VALUES
+(1,'Library System','Book Management','Completed');
+
+INSERT INTO project VALUES
+(2,'Bank System','Account Management','Running');
+
+
+SELECT * FROM project;
+
+
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+public class ProjectTableSwing {
+public static void main(String[] args) {
+JFrame frame = new JFrame("PROJECT TABLE");
+String[] columns = {
+"Project ID",
+"Project Name",
+"Description",
+"Status"
+};
+DefaultTableModel model = new DefaultTableModel(columns, 0);
+JTable table = new JTable(model);
+try {
+Class.forName("org.postgresql.Driver");
+Connection con = DriverManager.getConnection(
+"jdbc:postgresql://linux1/dbname", "usernm", "password");
+Statement stmt = con.createStatement();
+ResultSet rs = stmt.executeQuery("SELECT * FROM PROJECT");
+while (rs.next()) {
+int id = rs.getInt(1);
+String name = rs.getString(2);
+String desc = rs.getString(3);
+String status = rs.getString(4);
+model.addRow(new Object[]{id, name, desc, status});
+}
+con.close();
+
+} catch (Exception e) {
+e.printStackTrace();
+}
+JScrollPane pane = new JScrollPane(table);
+frame.add(pane);
+frame.setSize(600, 300);
+frame.setVisible(true);
+frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+}
 }
 
-
-
-
-
-
-Q.2 Write a simulation program for disk scheduling using C-LOOK algorithm. Accept
-total number of disk blocks, disk request string, and current head position from the user.
-Display the list of request in the order in which it is served. Also display the total number
-of head moments.
-23, 89, 132, 42, 187, 69, 36, 55
-Start Head Position: 40
-Direction: Right
-
-
-
-#include <stdio.h>
-#include <stdlib.h>
-
-void sort(int arr[], int n)
-{
-    int i, j, temp;
-    for(i = 0; i < n - 1; i++)
-    {
-        for(j = 0; j < n - i - 1; j++)
-        {
-            if(arr[j] > arr[j + 1])
-            {
-                temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
-            }
-        }
-    }
-}
-
-int main()
-{
-    int req[100], left[100], right[100];
-    int n, head, i;
-    int lcount = 0, rcount = 0, total = 0;
-
-    printf("Enter total number of requests: ");
-    scanf("%d", &n);
-
-    printf("Enter request sequence:\n");
-    for(i = 0; i < n; i++)
-        scanf("%d", &req[i]);
-
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
-
-    for(i = 0; i < n; i++)
-    {
-        if(req[i] < head)
-            left[lcount++] = req[i];
-        else
-            right[rcount++] = req[i];
-    }
-
-    sort(left, lcount);
-    sort(right, rcount);
-
-    printf("\nOrder of service using C-LOOK:\n");
-    printf("%d ", head);
-
-    for(i = 0; i < rcount; i++)
-    {
-        total += abs(head - right[i]);
-        head = right[i];
-        printf("-> %d ", head);
-    }
-
-    for(i = 0; i < lcount; i++)
-    {
-        total += abs(head - left[i]);
-        head = left[i];
-        printf("-> %d ", head);
-    }
-
-    printf("\n\nTotal head movements = %d\n", total);
-
-    return 0;
-}
-
-
-
-
-output:-
-
-
-Enter total number of requests: 8
-Enter request sequence:
-23 89 132 42 187 69 36 55
-Enter initial head position: 40
-
-Order of service using C-LOOK:
-40 -> 42 -> 55 -> 69 -> 89 -> 132 -> 187 -> 23 -> 36
-
-Total head movements = 324

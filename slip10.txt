@@ -1,157 +1,184 @@
-Q1) MPI Program – Sum and Average of 1000 Numbers
+1. Write a Java program to display the Current Date using spring.
 
 
-#include <mpi.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-#define SIZE 1000
 
-int main(int argc, char *argv[])
-{
-    int rank, size, i;
-    int data[SIZE];
-    int local_n;
-    int local_sum = 0, total_sum = 0;
-    double average;
-    int *sub_data;
+Save as DateBean.java
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+import java.util.Date;
 
-    local_n = SIZE / size;
-    sub_data = (int*)malloc(local_n * sizeof(int));
+public class DateBean {
 
-    if(rank == 0)
-    {
-        srand(time(NULL));
-        for(i = 0; i < SIZE; i++)
-            data[i] = rand() % 100;
+    private Date currentDate;
 
-        printf("Generated 1000 random numbers\n");
+    public Date getCurrentDate() {
+        return currentDate;
     }
 
-    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-
-    for(i = 0; i < local_n; i++)
-        local_sum += sub_data[i];
-
-    printf("Process %d local sum = %d\n", rank, local_sum);
-
-    MPI_Reduce(&local_sum, &total_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    if(rank == 0)
-    {
-        average = (double)total_sum / SIZE;
-        printf("\nTotal Sum = %d\n", total_sum);
-        printf("Average = %.2f\n", average);
+    public void setCurrentDate(Date currentDate) {
+        this.currentDate = currentDate;
     }
 
-    free(sub_data);
-    MPI_Finalize();
-    return 0;
+    public void showDate() {
+        System.out.println("Current Date: " + currentDate);
+    }
 }
 
 
+------------------------------------------------------------------
+
+Save as beans.xml
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="dateBean" class="DateBean">
+        <property name="currentDate">
+            <bean class="java.util.Date"/>
+        </property>
+    </bean>
+
+</beans>
+
+
+-----------------------------------------------------------------------
+
+
+Save as MainApp.java
+
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class MainApp {
+
+    public static void main(String[] args) {
+
+        ApplicationContext context =
+        new ClassPathXmlApplicationContext("beans.xml");
+
+        DateBean d = (DateBean) context.getBean("dateBean");
+
+        d.showDate();
+    }
+}
+
+
+spring-core.jar
+spring-beans.jar
+spring-context.jar
+spring-expression.jar
+commons-logging.jar
 
 
 
 
-Q.2 Write a simulation program for disk scheduling using C-SCAN algorithm. Accept
-total number of disk blocks, disk request string, and current head position from the user.
-Display the list of request in the order in which it is served. Also display the total
-number of head moments.
- 33, 99, 142, 52, 197, 79, 46, 65
-Start Head Position: 72
-Direction: Left
+
+
+javac -cp ".;spring-core.jar;spring-beans.jar;spring-context.jar;spring-expression.jar;commons-logging.jar" *.java
+
+
+java -cp ".;spring-core.jar;spring-beans.jar;spring-context.jar;spring-expression.jar;commons-logging.jar" MainApp
+
+
+
+Current Date: Tue Apr 16 20:15:10 IST 2026
 
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
 
-void sort(int arr[], int n)
-{
-    int i,j,temp;
-    for(i=0;i<n-1;i++)
-        for(j=0;j<n-i-1;j++)
-            if(arr[j] > arr[j+1])
+
+
+
+2. Write a Java program to display first record from student table (RNo, SName, Per) onto
+the TextFields by clicking on button. (Assume Student table is already created). 
+
+
+
+
+CREATE TABLE student(rno INT,sname VARCHAR(50),per INT);
+
+INSERT INTO student VALUES(1,'Rahul',85);
+INSERT INTO student VALUES(2,'Amit',78);
+
+
+
+
+Save as StudentGUI.java
+
+
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class StudentGUI extends Frame implements ActionListener {
+
+    TextField t1,t2,t3;
+    Button b;
+
+    StudentGUI() {
+
+        Label l1 = new Label("Roll No");
+        Label l2 = new Label("Name");
+        Label l3 = new Label("Percentage");
+
+        t1 = new TextField(20);
+        t2 = new TextField(20);
+        t3 = new TextField(20);
+
+        b = new Button("Show Record");
+
+        setLayout(new FlowLayout());
+
+        add(l1); add(t1);
+        add(l2); add(t2);
+        add(l3); add(t3);
+        add(b);
+
+        b.addActionListener(this);
+
+        setSize(300,200);
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+
+        try {
+
+            Class.forName("org.postgresql.Driver");
+
+            Connection con = DriverManager.getConnection(
+            "jdbc:postgresql://localhost:5432/testdb",
+            "postgres",
+            "password");
+
+            Statement st = con.createStatement();
+
+            ResultSet rs = st.executeQuery("SELECT * FROM student");
+
+            if(rs.next())
             {
-                temp=arr[j];
-                arr[j]=arr[j+1];
-                arr[j+1]=temp;
+                t1.setText(rs.getString(1));
+                t2.setText(rs.getString(2));
+                t3.setText(rs.getString(3));
             }
-}
 
-int main()
-{
-    int req[100], left[100], right[100];
-    int n, head, disk_size, i;
-    int lcount=0, rcount=0, total=0;
-
-    printf("Enter total number of requests: ");
-    scanf("%d",&n);
-
-    printf("Enter request sequence:\n");
-    for(i=0;i<n;i++)
-        scanf("%d",&req[i]);
-
-    printf("Enter initial head position: ");
-    scanf("%d",&head);
-
-    printf("Enter disk size: ");
-    scanf("%d",&disk_size);
-
-    for(i=0;i<n;i++)
-    {
-        if(req[i] < head)
-            left[lcount++] = req[i];
-        else
-            right[rcount++] = req[i];
+        } catch(Exception ex) {
+            System.out.println(ex);
+        }
     }
 
-    left[lcount++] = 0;
-    right[rcount++] = disk_size-1;
-
-    sort(left,lcount);
-    sort(right,rcount);
-
-    printf("\nOrder of service using C-SCAN:\n");
-    printf("%d ",head);
-
-    for(i=lcount-1;i>=0;i--)
-    {
-        total += abs(head-left[i]);
-        head = left[i];
-        printf("-> %d ",head);
+    public static void main(String args[]) {
+        new StudentGUI();
     }
-
-    for(i=rcount-1;i>=0;i--)
-    {
-        total += abs(head-right[i]);
-        head = right[i];
-        printf("-> %d ",head);
-    }
-
-    printf("\n\nTotal head movements = %d\n",total);
-
-    return 0;
 }
 
 
 
-output:-
-Enter total number of requests: 8
-Enter request sequence:
-33 99 142 52 197 79 46 63
-Enter initial head position: 
-72
-Enter disk size: 200
-
-Order of service using C-SCAN:
-72 -> 63 -> 52 -> 46 -> 33 -> 0 -> 199 -> 197 -> 142 -> 99 -> 79
-
-Total head movements = 391
+javac -cp ".;postgresql-42.7.3.jar" StudentGUI.java
+java -cp ".;postgresql-42.7.3.jar" StudentGUI

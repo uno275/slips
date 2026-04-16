@@ -1,171 +1,205 @@
-Q1) MPI Program to calculate sum of all odd randomly generated 1000 numbers
+1. Write a java program to scroll the text from left to right continuously. 
 
 
 
-#include <mpi.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+import java.awt.*;
+import java.awt.event.*;
 
-#define SIZE 1000
+public class ScrollText extends Frame implements Runnable {
 
-int main(int argc, char *argv[])
-{
-    int rank, nprocs, i;
-    int data[SIZE];
-    int local_n, local_odd_sum = 0, total_odd_sum = 0;
-    int *sub_data;
+    TextField tf;
+    Thread t;
+    String msg = "Java Programming ";
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    ScrollText() {
 
-    if (SIZE % nprocs != 0)
-    {
-        if (rank == 0)
-            printf("1000 numbers cannot be divided equally among %d processes\n", nprocs);
-        MPI_Finalize();
-        return 0;
-    }
+        tf = new TextField(30);
+        tf.setText(msg);
 
-    local_n = SIZE / nprocs;
-    sub_data = (int *)malloc(local_n * sizeof(int));
+        add(tf);
 
-    if (rank == 0)
-    {
-        srand(time(NULL));
-        for (i = 0; i < SIZE; i++)
-            data[i] = rand() % 1000;
+        setSize(400,150);
+        setVisible(true);
 
-        printf("Generated 1000 random numbers\n");
-    }
+        t = new Thread(this);
+        t.start();
 
-    MPI_Scatter(data, local_n, MPI_INT, sub_data, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-
-    for (i = 0; i < local_n; i++)
-    {
-        if (sub_data[i] % 2 != 0)
-            local_odd_sum += sub_data[i];
-    }
-
-    printf("Process %d local odd sum = %d\n", rank, local_odd_sum);
-
-    MPI_Reduce(&local_odd_sum, &total_odd_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-    if (rank == 0)
-    {
-        printf("Total sum of odd numbers = %d\n", total_odd_sum);
-    }
-
-    free(sub_data);
-    MPI_Finalize();
-    return 0;
-}
-
-
-
-
-
-
-
-Q.2 Write a C program to simulate Banker’s algorithm for the purpose of deadlock
-avoidance.The following snapshot of system, A, B, C and D are the resource type
-
-
-
-#include <stdio.h>
-
-int main()
-{
-    int i, j, k;
-    int n = 5, m = 3;
-
-    int allocation[5][3] = {
-        {0, 1, 0},
-        {2, 0, 0},
-        {3, 0, 3},
-        {2, 1, 1},
-        {0, 0, 2}
-    };
-
-    int max[5][3] = {
-        {0, 0, 0},
-        {2, 0, 2},
-        {0, 0, 0},
-        {1, 0, 0},
-        {0, 0, 2}
-    };
-
-    int available[3] = {0, 0, 0};
-    int need[5][3], finish[5] = {0}, safe[5];
-    int count = 0, found;
-
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < m; j++) {
-            need[i][j] = max[i][j] - allocation[i][j];
-        }
-    }
-
-    printf("\nNeed Matrix:\n");
-    printf("Process\tA B C\n");
-    for(i = 0; i < n; i++) {
-        printf("P%d\t", i);
-        for(j = 0; j < m; j++) {
-            printf("%d ", need[i][j]);
-        }
-        printf("\n");
-    }
-
-    while(count < n) {
-        found = 0;
-
-        for(i = 0; i < n; i++) {
-            if(finish[i] == 0) {
-                for(j = 0; j < m; j++) {
-                    if(need[i][j] > available[j])
-                        break;
-                }
-
-                if(j == m) {
-                    for(k = 0; k < m; k++) {
-                        available[k] += allocation[i][k];
-                    }
-                    safe[count++] = i;
-                    finish[i] = 1;
-                    found = 1;
-                }
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent we) {
+                dispose();
             }
-        }
+        });
+    }
 
-        if(found == 0) {
-            printf("\nSystem is NOT in safe state.\n");
-            return 0;
+    public void run() {
+
+        try {
+
+            while(true) {
+
+                msg = msg.substring(1) + msg.charAt(0);
+
+                tf.setText(msg);
+
+                Thread.sleep(200);
+
+            }
+
+        }
+        catch(Exception e) {
+            System.out.println(e);
         }
     }
 
-    printf("\nSystem is in SAFE state.\n");
-    printf("Safe Sequence: ");
-    for(i = 0; i < n; i++) {
-        printf("P%d", safe[i]);
-        if(i != n - 1)
-            printf(" -> ");
-    }
-    printf("\n");
+    public static void main(String args[]) {
 
-    return 0;
+        new ScrollText();
+
+    }
 }
 
 
 
 
+Compile
+javac ScrollText.java
+Run
+java ScrollText
+Output
 
-Need Matrix:
-Process A B C
-P0      0 -1 0
-P1      0 0 2
-P2      -3 0 -3
-P3      -1 -1 -1
-P4      0 0 0
+A window will open and text will scroll continuously.
 
-System is in SAFE state.
-Safe Sequence: P2 -> P1 -> P3 -> P0 -> P4
+Example:
+
+Java Programming
+ava ProgrammingJ
+va ProgrammingJa
+
+
+
+
+
+2. Write a JSP script to accept username and password from user, if they are same then
+display “Login Successfully” message in Login.html file, otherwise display “Login
+Failed” Message in Error.html file. 
+
+
+apache-tomcat
+  webapps
+      loginapp
+          index.html
+          login.jsp
+          login.html
+          error.html
+
+
+
+
+
+Save as index.html
+
+
+<html>
+<body>
+
+<h2>Login Page</h2>
+
+<form action="login.jsp" method="post">
+
+Username:
+<input type="text" name="user"><br><br>
+
+Password:
+<input type="password" name="pass"><br><br>
+
+<input type="submit" value="Login">
+
+</form>
+
+</body>
+</html>
+
+
+
+
+
+Save as login.jsp
+
+
+
+<%
+
+String u = request.getParameter("user");
+String p = request.getParameter("pass");
+
+if(u.equals(p))
+{
+response.sendRedirect("login.html");
+}
+else
+{
+response.sendRedirect("error.html");
+}
+
+%>
+
+
+
+
+Save as login.html
+
+
+
+<html>
+<body>
+
+<h2 style="color:green;">
+Login Successfully
+</h2>
+
+</body>
+</html>
+
+
+
+
+Save as error.html
+
+
+<html>
+<body>
+
+<h2 style="color:red;">
+Login Failed
+</h2>
+
+</body>
+</html>
+
+
+
+output
+
+
+
+Open browser
+http://localhost:8080/loginapp/index.html
+Example
+
+Input
+
+Username : admin
+Password : admin
+
+Output
+
+Login Successfully
+
+Input
+
+Username : admin
+Password : 123
+
+Output
+
+Login Failed

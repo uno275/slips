@@ -1,301 +1,144 @@
-Q.1 Write a program to simulate Linked file allocation method. Assume disk with n
-number of blocks. Give value of n as input. Randomly mark some block as allocated and
-accordingly maintain the list of free blocks Write menu driver program with menu
-options as mentioned below and implement each option.
-• Show Bit Vector
-• Create New File
-• Show Directory
-• Exit
+Write a java program to display name and priority of a Thread.
 
 
+class MyThread extends Thread {
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#define MAX 100
-
-struct file
-{
-    char name[20];
-    int start;
-    int blocks[20];
-    int count;
-};
-
-int bit[MAX];
-int n, fileCount = 0;
-struct file dir[20];
-
-void initDisk()
-{
-    int i;
-    srand(time(0));
-    for(i = 0; i < n; i++)
-        bit[i] = rand() % 2;
-}
-
-void showBitVector()
-{
-    int i;
-    printf("\nBit Vector:\n");
-    for(i = 0; i < n; i++)
-        printf("%d ", bit[i]);
-    printf("\n");
-}
-
-void createFile()
-{
-    char fname[20];
-    int bcount, i, j = 0, freeCount = 0;
-
-    printf("Enter file name: ");
-    scanf("%s", fname);
-
-    printf("Enter number of blocks required: ");
-    scanf("%d", &bcount);
-
-    for(i = 0; i < n; i++)
-    {
-        if(bit[i] == 0)
-            freeCount++;
+    MyThread(String name, int priority) {
+        setName(name);
+        setPriority(priority);
     }
 
-    if(freeCount < bcount)
-    {
-        printf("Not enough free blocks.\n");
-        return;
-    }
-
-    strcpy(dir[fileCount].name, fname);
-    dir[fileCount].count = bcount;
-
-    for(i = 0; i < n && j < bcount; i++)
-    {
-        if(bit[i] == 0)
-        {
-            bit[i] = 1;
-            dir[fileCount].blocks[j] = i;
-            j++;
-        }
-    }
-
-    dir[fileCount].start = dir[fileCount].blocks[0];
-    fileCount++;
-
-    printf("File created successfully.\n");
-}
-
-void showDirectory()
-{
-    int i, j;
-
-    if(fileCount == 0)
-    {
-        printf("\nDirectory is empty.\n");
-        return;
-    }
-
-    printf("\nDirectory:\n");
-    printf("File Name\tStart Block\tAllocated Blocks\n");
-    for(i = 0; i < fileCount; i++)
-    {
-        printf("%s\t\t%d\t\t", dir[i].name, dir[i].start);
-        for(j = 0; j < dir[i].count; j++)
-        {
-            printf("%d", dir[i].blocks[j]);
-            if(j != dir[i].count - 1)
-                printf(" -> ");
-        }
-        printf("\n");
+    public void run() {
+        System.out.println("Thread Name: " + getName());
+        System.out.println("Thread Priority: " + getPriority());
     }
 }
 
-int main()
-{
-    int choice;
+public class ThreadInfo {
+    public static void main(String[] args) {
+        MyThread t1 = new MyThread("Thread-1", 3);
+        MyThread t2 = new MyThread("Thread-2", 7);
 
-    printf("Enter total number of disk blocks: ");
-    scanf("%d", &n);
-
-    initDisk();
-
-    do
-    {
-        printf("\n--- MENU ---\n");
-        printf("1. Show Bit Vector\n");
-        printf("2. Create New File\n");
-        printf("3. Show Directory\n");
-        printf("4. Exit\n");
-        printf("Enter choice: ");
-        scanf("%d", &choice);
-
-        switch(choice)
-        {
-            case 1:
-                showBitVector();
-                break;
-            case 2:
-                createFile();
-                break;
-            case 3:
-                showDirectory();
-                break;
-            case 4:
-                printf("Exiting...\n");
-                break;
-            default:
-                printf("Invalid choice.\n");
-        }
-    } while(choice != 4);
-
-    return 0;
+        t1.start();
+        t2.start();
+    }
 }
 
 
 
-output:-
-Enter total number of disk blocks: 10
+Compile:
 
---- MENU ---
-1. Show Bit Vector
-2. Create New File
-3. Show Directory
-4. Exit
-Enter choice: 1
+javac ThreadInfo.java
 
-Bit Vector:
-0 1 0 1 1 1 1 0 1 0
+Run:
 
---- MENU ---
-1. Show Bit Vector
-2. Create New File
-3. Show Directory
-4. Exit
-Enter choice: 2
-Enter file name: file2 
-Enter number of blocks required: 3
-File created successfully.
+java ThreadInfo
 
---- MENU ---
-1. Show Bit Vector
-2. Create New File
-3. Show Directory
-4. Exit
-Enter choice: 3
 
-Directory:
-File Name       Start Block     Allocated Blocks
-file2           0               0 -> 2 -> 7
 
---- MENU ---
-1. Show Bit Vector
-2. Create New File
-3. Show Directory
-4. Exit
-Enter choice: 4
-Exiting...
+Example Output
+Thread Name: Thread-1
+Thread Priority: 3
+Thread Name: Thread-2
+Thread Priority: 7
 
 
 
 
-Q.2 Write a simulation program for disk scheduling using C-SCAN algorithm. Accept total
-number of disk blocks, disk request string, and current head position from the user. Display
-the list of request in the order in which it is served. Also display the total number of head
-moments.. [15]
-80, 150, 60,135, 40, 35, 170
-Starting Head Position: 70
-Direction: Right
+
+2. Write a SERVLET program which counts how many times a user has visited a web
+page. If user is visiting the page for the first time, display a welcome message. If the
+user is revisiting the page, display the number of times visited. (Use Cookie)
 
 
-#include <stdio.h>
-#include <stdlib.h>
 
-void sort(int arr[], int n)
-{
-    int i, j, temp;
-    for(i = 0; i < n - 1; i++)
-    {
-        for(j = 0; j < n - i - 1; j++)
-        {
-            if(arr[j] > arr[j + 1])
-            {
-                temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+VisitApp
+│
+├── VisitCountServlet.java
+└── WEB-INF
+    ├── web.xml
+    └── classes
+        └── VisitCountServlet.class
+
+
+
+
+VisitCountServlet.java
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class VisitCountServlet extends HttpServlet {
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        int count = 0;
+        boolean newUser = true;
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("visitCount")) {
+                    count = Integer.parseInt(c.getValue());
+                    newUser = false;
+                    break;
+                }
             }
         }
+
+        if (newUser) {
+            count = 1;
+            out.println("<h2>Welcome! You are visiting this page for the first time.</h2>");
+        } else {
+            count++;
+            out.println("<h2>You have visited this page " + count + " times.</h2>");
+        }
+
+        Cookie ck = new Cookie("visitCount", String.valueOf(count));
+        ck.setMaxAge(60 * 60 * 24);
+        response.addCookie(ck);
+
+        out.println("<a href='visit'>Refresh</a>");
     }
 }
 
-int main()
-{
-    int req[100], left[100], right[100];
-    int n, head, disk_size, i;
-    int lcount = 0, rcount = 0, total = 0;
-
-    printf("Enter total number of requests: ");
-    scanf("%d", &n);
-
-    printf("Enter request sequence:\n");
-    for(i = 0; i < n; i++)
-        scanf("%d", &req[i]);
-
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
-
-    printf("Enter disk size: ");
-    scanf("%d", &disk_size);
-
-    for(i = 0; i < n; i++)
-    {
-        if(req[i] < head)
-            left[lcount++] = req[i];
-        else
-            right[rcount++] = req[i];
-    }
-
-    right[rcount++] = disk_size - 1;
-    left[lcount++] = 0;
-
-    sort(left, lcount);
-    sort(right, rcount);
-
-    printf("\nOrder of service using C-SCAN:\n");
-    printf("%d ", head);
-
-    for(i = 0; i < rcount; i++)
-    {
-        total += abs(head - right[i]);
-        head = right[i];
-        printf("-> %d ", head);
-    }
-
-    head = 0;
-    printf("-> %d ", head);
-    total += (disk_size - 1);
-
-    for(i = 0; i < lcount - 1; i++)
-    {
-        total += abs(head - left[i]);
-        head = left[i];
-        printf("-> %d ", head);
-    }
-
-    printf("\n\nTotal head movements = %d\n", total);
-
-    return 0;
-}
 
 
-Enter total number of requests: 7
-Enter request sequence:
-80 150 60 135 40 35 170
-Enter initial head position: 70
-Enter disk size: 200
+web.xml
 
-Order of service using C-SCAN:
-70 -> 80 -> 135 -> 150 -> 170 -> 199 -> 0 -> 0 -> 35 -> 40
 
-Total head movements = 368
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         version="3.1">
+
+    <servlet>
+        <servlet-name>VisitCountServlet</servlet-name>
+        <servlet-class>VisitCountServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>VisitCountServlet</servlet-name>
+        <url-pattern>/visit</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+
+
+
+Run in browser
+
+Open:
+
+http://localhost:8080/VisitApp/visit
+Output
+First time:
+Welcome! You are visiting this page for the first time.
+Refresh again:
+You have visited this page 2 times.
+Refresh again:
+You have visited this page 3 times

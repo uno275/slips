@@ -1,288 +1,274 @@
-Q.1 Implement the Menu driven Banker's algorithm for accepting Allocation, Max
-fromuser.
-a)Accept Available
-b)Display Allocation, Max
-c)Find Need and display It,
-d)Display Available
-Consider the system with 3 resources types A,B, and C with 7,2,6 instances respectively.
-Consider the following snapshot:
-Process Allocation Request
-A B C A B C
-P0 0 1 0 0 0 0
-P1 4 0 0 5 2 2
-P2 5 0 4 1 0 4
-P3 4 3 3 4 4 4
-P4 2 2 4 6 5 5
+Program 1
+Write a Java program using Runnable interface to blink Text on the frame.
 
 
+import javax.swing.*;
+import java.awt.*;
 
-#include <stdio.h>
+public class BlinkText extends JFrame implements Runnable
+{
+    JLabel l;
+    Thread t;
+    boolean visible = true;
 
-#define P 5
-#define R 3
+    BlinkText()
+    {
+        setTitle("Blinking Text");
+        setSize(400, 200);
+        setLayout(new FlowLayout());
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-int allocation[P][R] = {
-    {0, 1, 0},
-    {4, 0, 0},
-    {5, 0, 4},
-    {4, 3, 3},
-    {2, 2, 4}
-};
+        l = new JLabel("WELCOME");
+        l.setFont(new Font("Arial", Font.BOLD, 30));
+        add(l);
 
-int max[P][R] = {
-    {0, 0, 0},
-    {5, 2, 2},
-    {1, 0, 4},
-    {4, 4, 4},
-    {6, 5, 5}
-};
+        setVisible(true);
 
-int need[P][R];
-int available[R];
-
-void acceptAvailable() {
-    int i;
-    printf("Enter Available Resources (A B C): ");
-    for(i = 0; i < R; i++) {
-        scanf("%d", &available[i]);
+        t = new Thread(this);
+        t.start();
     }
-}
 
-void displayAllocationMax() {
-    int i, j;
-    printf("\nProcess\tAllocation\tMax/Request\n");
-    printf("\tA B C\t\tA B C\n");
-    for(i = 0; i < P; i++) {
-        printf("P%d\t", i);
-        for(j = 0; j < R; j++) {
-            printf("%d ", allocation[i][j]);
-        }
-        printf("\t\t");
-        for(j = 0; j < R; j++) {
-            printf("%d ", max[i][j]);
-        }
-        printf("\n");
-    }
-}
-
-void findNeed() {
-    int i, j;
-    for(i = 0; i < P; i++) {
-        for(j = 0; j < R; j++) {
-            need[i][j] = max[i][j] - allocation[i][j];
-        }
-    }
-}
-
-void displayNeed() {
-    int i, j;
-    findNeed();
-    printf("\nNeed Matrix:\n");
-    printf("Process\tA B C\n");
-    for(i = 0; i < P; i++) {
-        printf("P%d\t", i);
-        for(j = 0; j < R; j++) {
-            printf("%d ", need[i][j]);
-        }
-        printf("\n");
-    }
-}
-
-void displayAvailable() {
-    printf("\nAvailable Resources:\n");
-    printf("A = %d\tB = %d\tC = %d\n", available[0], available[1], available[2]);
-}
-
-int main() {
-    int choice;
-
-    do {
-        printf("\n----- MENU -----\n");
-        printf("1. Accept Available\n");
-        printf("2. Display Allocation and Max\n");
-        printf("3. Find Need and Display It\n");
-        printf("4. Display Available\n");
-        printf("5. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-
-        switch(choice) {
-            case 1:
-                acceptAvailable();
-                break;
-            case 2:
-                displayAllocationMax();
-                break;
-            case 3:
-                displayNeed();
-                break;
-            case 4:
-                displayAvailable();
-                break;
-            case 5:
-                printf("Exiting...\n");
-                break;
-            default:
-                printf("Invalid choice!\n");
-        }
-    } while(choice != 5);
-
-    return 0;
-}
-
-
-output:-
-
------ MENU -----
-1. Accept Available
-2. Display Allocation and Max
-3. Find Need and Display It
-4. Display Available
-5. Exit
-Enter your choice: 1
-Enter Available Resources (A B C): 7 2 6
-
------ MENU -----
-1. Accept Available
-2. Display Allocation and Max
-3. Find Need and Display It
-4. Display Available
-5. Exit
-Enter your choice: 2
-
-Process Allocation      Max/Request
-        A B C           A B C
-P0      0 1 0           0 0 0
-P1      4 0 0           5 2 2
-P2      5 0 4           1 0 4
-P3      4 3 3           4 4 4
-P4      2 2 4           6 5 5
-
------ MENU -----
-1. Accept Available
-2. Display Allocation and Max
-3. Find Need and Display It
-4. Display Available
-5. Exit
-Enter your choice: 3
-
-Need Matrix:
-Process A B C
-P0      0 -1 0
-P1      1 2 2
-P2      -4 0 0
-P3      0 1 1
-P4      4 3 1
-
------ MENU -----
-1. Accept Available
-2. Display Allocation and Max
-3. Find Need and Display It
-4. Display Available
-5. Exit
-Enter your choice: 4
-
-Available Resources:
-A = 7   B = 2   C = 6
-
------ MENU -----
-1. Accept Available
-2. Display Allocation and Max
-3. Find Need and Display It
-4. Display Available
-5. Exit
-Enter your choice: 5
-Exiting...
-
-
-
-Q.2 Write a simulation program for disk scheduling using SCAN algorithm. Accept total
-number of disk blocks, disk request string, and current head position from the user.
-Display the list of request in the order in which it is served. Also display the total
-number of head moments.
-86, 147, 91, 170, 95, 130, 102, 70
-Starting Head position= 125
-Direction: Left
-
-
-#include <stdio.h>
-#include <stdlib.h>
-
-void sort(int arr[], int n) {
-    int i, j, temp;
-    for(i = 0; i < n - 1; i++) {
-        for(j = 0; j < n - i - 1; j++) {
-            if(arr[j] > arr[j + 1]) {
-                temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+    public void run()
+    {
+        try
+        {
+            while(true)
+            {
+                l.setVisible(visible);
+                visible = !visible;
+                Thread.sleep(500);
             }
         }
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public static void main(String args[])
+    {
+        new BlinkText();
     }
 }
 
-int main() {
-    int req[100], n, head, total = 0, disk_size, i;
-    int left[100], right[100];
-    int lcount = 0, rcount = 0;
 
-    printf("Enter total number of disk requests: ");
-    scanf("%d", &n);
 
-    printf("Enter disk request sequence:\n");
-    for(i = 0; i < n; i++) {
-        scanf("%d", &req[i]);
+
+Compile:
+
+javac BlinkText.java
+java BlinkText
+
+
+Output
+A frame opens on the screen.
+Text "WELCOME" blinks continuously.
+Screen View
+--------------------------
+|                        |
+|       WELCOME          |
+|                        |
+--------------------------
+
+
+
+
+
+
+Program 2
+Write a Java program to store city names and their STD codes using an appropriate collection and perform:
+Add new city and code
+Remove city
+Search city and display code
+
+
+
+
+
+import java.util.*;
+
+public class CitySTD
+{
+    public static void main(String args[])
+    {
+        Scanner sc = new Scanner(System.in);
+        HashMap<String, String> hm = new HashMap<String, String>();
+
+        int ch;
+        String city, code;
+
+        do
+        {
+            System.out.println("\n1. Add City");
+            System.out.println("2. Remove City");
+            System.out.println("3. Search City");
+            System.out.println("4. Display All");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            ch = sc.nextInt();
+            sc.nextLine();
+
+            switch(ch)
+            {
+                case 1:
+                    System.out.print("Enter city name: ");
+                    city = sc.nextLine();
+
+                    if(hm.containsKey(city))
+                    {
+                        System.out.println("City already exists. No duplicates allowed.");
+                    }
+                    else
+                    {
+                        System.out.print("Enter STD code: ");
+                        code = sc.nextLine();
+                        hm.put(city, code);
+                        System.out.println("City added successfully.");
+                    }
+                    break;
+
+                case 2:
+                    System.out.print("Enter city name to remove: ");
+                    city = sc.nextLine();
+
+                    if(hm.containsKey(city))
+                    {
+                        hm.remove(city);
+                        System.out.println("City removed successfully.");
+                    }
+                    else
+                    {
+                        System.out.println("City not found.");
+                    }
+                    break;
+
+                case 3:
+                    System.out.print("Enter city name to search: ");
+                    city = sc.nextLine();
+
+                    if(hm.containsKey(city))
+                    {
+                        System.out.println("STD Code of " + city + " is: " + hm.get(city));
+                    }
+                    else
+                    {
+                        System.out.println("City not found.");
+                    }
+                    break;
+
+                case 4:
+                    System.out.println("Cities and STD Codes:");
+                    for(Map.Entry<String, String> e : hm.entrySet())
+                    {
+                        System.out.println(e.getKey() + " -> " + e.getValue());
+                    }
+                    break;
+
+                case 5:
+                    System.out.println("Exiting...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice.");
+            }
+
+        } while(ch != 5);
     }
-
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
-
-    printf("Enter total disk size: ");
-    scanf("%d", &disk_size);
-
-    for(i = 0; i < n; i++) {
-        if(req[i] < head)
-            left[lcount++] = req[i];
-        else
-            right[rcount++] = req[i];
-    }
-
-    left[lcount++] = 0;
-
-    sort(left, lcount);
-    sort(right, rcount);
-
-    printf("\nOrder of service using SCAN:\n");
-    printf("%d ", head);
-
-    for(i = lcount - 1; i >= 0; i--) {
-        total += abs(head - left[i]);
-        head = left[i];
-        printf("-> %d ", head);
-    }
-
-    for(i = 0; i < rcount; i++) {
-        total += abs(head - right[i]);
-        head = right[i];
-        printf("-> %d ", head);
-    }
-
-    printf("\n\nTotal head movements = %d\n", total);
-
-    return 0;
 }
 
-output:-
 
 
-Enter total number of disk requests: 8
-Enter disk request sequence:
-86 147 91 170 95 130 102 70
-Enter initial head position: 125
-Enter total disk size: 
-200
 
-Order of service using SCAN:
-125 -> 102 -> 95 -> 91 -> 86 -> 70 -> 0 -> 130 -> 147 -> 170
 
-Total head movements = 295
+Compile:
+
+
+javac CitySTD.java
+java CitySTD
+
+
+
+
+Sample Output
+1. Add City
+2. Remove City
+3. Search City
+4. Display All
+5. Exit
+Enter your choice: 1
+Enter city name: Pune
+Enter STD code: 020
+City added successfully.
+
+1. Add City
+2. Remove City
+3. Search City
+4. Display All
+5. Exit
+Enter your choice: 1
+Enter city name: Mumbai
+Enter STD code: 022
+City added successfully.
+
+1. Add City
+2. Remove City
+3. Search City
+4. Display All
+5. Exit
+Enter your choice: 3
+Enter city name to search: Pune
+STD Code of Pune is: 020
+
+1. Add City
+2. Remove City
+3. Search City
+4. Display All
+5. Exit
+Enter your choice: 4
+Cities and STD Codes:
+Pune -> 020
+Mumbai -> 022
+
+1. Add City
+2. Remove City
+3. Search City
+4. Display All
+5. Exit
+Enter your choice: 2
+Enter city name to remove: Mumbai
+City removed successfully.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

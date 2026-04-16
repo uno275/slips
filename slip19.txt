@@ -1,203 +1,198 @@
-Q.1 Write a C program to simulate Banker’s algorithm for the purpose of
-deadlock avoidance.Consider the following snapshot of system, A, B, C and D
-is the resource type
+1. Write a java program to accept ‘N’ Integers from a user store them into LinkedList
+Collection and display only negative integers. 
 
 
+import java.util.*;
 
-#include <stdio.h>
+public class NegativeList {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        LinkedList<Integer> list = new LinkedList<Integer>();
 
-int main()
-{
-    int i, j, k;
-    int n = 6, m = 4;
+        System.out.print("Enter number of integers: ");
+        int n = sc.nextInt();
 
-    int allocation[6][4] = {
-        {0, 3, 2, 4},
-        {1, 2, 0, 1},
-        {0, 0, 0, 0},
-        {3, 3, 2, 2},
-        {1, 4, 3, 2},
-        {2, 4, 1, 4}
-    };
-
-    int max[6][4] = {
-        {6, 5, 4, 4},
-        {4, 4, 4, 4},
-        {0, 0, 1, 2},
-        {3, 9, 3, 4},
-        {2, 5, 3, 3},
-        {4, 6, 3, 4}
-    };
-
-    int available[4] = {3, 4, 4, 2};
-    int need[6][4], finish[6] = {0}, safe[6];
-    int count = 0, found;
-
-    for(i = 0; i < n; i++) {
-        for(j = 0; j < m; j++) {
-            need[i][j] = max[i][j] - allocation[i][j];
+        System.out.println("Enter integers:");
+        for (int i = 0; i < n; i++) {
+            int num = sc.nextInt();
+            list.add(num);
         }
-    }
 
-    printf("\nNeed Matrix:\n");
-    printf("Process\tA B C D\n");
-    for(i = 0; i < n; i++) {
-        printf("P%d\t", i);
-        for(j = 0; j < m; j++) {
-            printf("%d ", need[i][j]);
-        }
-        printf("\n");
-    }
-
-    while(count < n) {
-        found = 0;
-
-        for(i = 0; i < n; i++) {
-            if(finish[i] == 0) {
-                for(j = 0; j < m; j++) {
-                    if(need[i][j] > available[j])
-                        break;
-                }
-
-                if(j == m) {
-                    for(k = 0; k < m; k++) {
-                        available[k] += allocation[i][k];
-                    }
-                    safe[count++] = i;
-                    finish[i] = 1;
-                    found = 1;
-                }
+        System.out.println("Negative integers are:");
+        for (int x : list) {
+            if (x < 0) {
+                System.out.println(x);
             }
         }
 
-        if(found == 0) {
-            printf("\nSystem is NOT in safe state.\n");
-            return 0;
-        }
+        sc.close();
     }
-
-    printf("\nSystem is in SAFE state.\n");
-    printf("Safe Sequence: ");
-    for(i = 0; i < n; i++) {
-        printf("P%d", safe[i]);
-        if(i != n - 1)
-            printf(" -> ");
-    }
-    printf("\n");
-
-    return 0;
 }
 
 
 
-output:-
+Compile:
 
-Need Matrix:
-Process A B C D
-P0      6 2 2 0
-P1      3 2 4 3
-P2      0 0 1 2
-P3      0 6 1 2
-P4      1 1 0 1
-P5      2 2 2 0
+javac NegativeList.java
 
-System is in SAFE state.
-Safe Sequence: P2 -> P4 -> P5 -> P0 -> P1 -> P3
+Run:
+java NegativeList
+Example input
+Enter number of integers: 6
+Enter integers:
+5
+-2
+8
+-10
+3
+-1
 
-
-
-
-
-
-Q.2 Write a simulation program for disk scheduling using C-SCAN algorithm. Accept
-total number of disk blocks, disk request string, and current head position from the user.
-Display the list of request in the order in which it is served. Also display the total number
-of head moments.
-23, 89, 132, 42, 187, 69, 36, 55
-Start Head Position: 40
-Direction: Left
+Output
+Negative integers are:
+-2
+-10
+-1
 
 
 
-#include <stdio.h>
-#include <stdlib.h>
 
-void sort(int arr[], int n)
-{
-    int i, j, temp;
-    for(i = 0; i < n - 1; i++) {
-        for(j = 0; j < n - i - 1; j++) {
-            if(arr[j] > arr[j + 1]) {
-                temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+2. Write a SERVLET application to accept username and password, search them into
+database, if found then display appropriate message on the browser otherwise display
+error message. 
+
+
+
+LoginApp
+│   index.html
+│   LoginServlet.java
+│
+└── WEB-INF
+    │   web.xml
+    │
+    └── classes
+        │   LoginServlet.class
+
+
+
+psql
+
+CREATE TABLE users(username VARCHAR(50),password VARCHAR(50));
+
+
+INSERT INTO users VALUES ('admin', '1234');
+INSERT INTO users VALUES ('pratham', 'pass123');
+
+
+index.html
+
+
+<html>
+<body>
+    <h2>Login Form</h2>
+    <form action="login" method="post">
+        Username: <input type="text" name="username"><br><br>
+        Password: <input type="password" name="password"><br><br>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
+
+
+
+
+LoginServlet.java
+
+
+import java.io.*;
+import java.sql.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class LoginServlet extends HttpServlet {
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        String uname = request.getParameter("username");
+        String pass = request.getParameter("password");
+
+        try {
+            Class.forName("org.postgresql.Driver");
+
+            Connection con = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost:5432/testdb",
+                    "postgres",
+                    "password"
+            );
+
+            PreparedStatement pst = con.prepareStatement(
+                    "SELECT * FROM users WHERE username=? AND password=?"
+            );
+
+            pst.setString(1, uname);
+            pst.setString(2, pass);
+
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                out.println("<h2>Login Successful</h2>");
+            } else {
+                out.println("<h2>Invalid Username or Password</h2>");
             }
+
+            con.close();
+
+        } catch (Exception e) {
+            out.println(e);
         }
     }
 }
 
-int main()
-{
-    int req[100], left[100], right[100];
-    int n, head, disk_size, i;
-    int lcount = 0, rcount = 0, total = 0;
 
-    printf("Enter total number of requests: ");
-    scanf("%d", &n);
 
-    printf("Enter request sequence:\n");
-    for(i = 0; i < n; i++)
-        scanf("%d", &req[i]);
 
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
-
-    printf("Enter disk size: ");
-    scanf("%d", &disk_size);
-
-    for(i = 0; i < n; i++) {
-        if(req[i] < head)
-            left[lcount++] = req[i];
-        else
-            right[rcount++] = req[i];
-    }
-
-    left[lcount++] = 0;
-    right[rcount++] = disk_size - 1;
-
-    sort(left, lcount);
-    sort(right, rcount);
-
-    printf("\nOrder of service using C-SCAN:\n");
-    printf("%d ", head);
-
-    for(i = lcount - 1; i >= 0; i--) {
-        total += abs(head - left[i]);
-        head = left[i];
-        printf("-> %d ", head);
-    }
-
-    for(i = rcount - 1; i >= 0; i--) {
-        total += abs(head - right[i]);
-        head = right[i];
-        printf("-> %d ", head);
-    }
-
-    printf("\n\nTotal head movements = %d\n", total);
-
-    return 0;
-}
+WEB-INF/web.xml
 
 
 
 
-Enter total number of requests: 8
-Enter request sequence:
-23 89 132 42 187 69 36 55
-Enter initial head position: 40
-Enter disk size: 200
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         version="3.1">
 
-Order of service using C-SCAN:
-40 -> 36 -> 23 -> 0 -> 199 -> 187 -> 132 -> 89 -> 69 -> 55 -> 42
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>LoginServlet</servlet-class>
+    </servlet>
 
-Total head movements = 396
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+
+
+
+
+
+Open in browser
+http://localhost:8080/LoginApp/index.html
+
+Example login
+Correct
+Username: admin
+Password: 1234
+
+Output:
+
+Login Successful
+Wrong
+Username: admin
+Password: 1111
+
+Output:
+
+Invalid Username or Password
